@@ -1,17 +1,18 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-import { request } from "node:http";
+//import { request } from "node:http";
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(morgan("tiny"));
-
+console.log(1)
 app.use((request, response, next) => {
   console.log(request.method);
   console.log(request.path);
   console.log(request.body);
+  next()
 });
 
 let persons = [
