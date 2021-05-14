@@ -8,11 +8,11 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("tiny"));
 
-app.use((request, response, next) =>{
-console.log(request.method)
-console.log(request.path)
-console.log(request.body)
-})
+app.use((request, response, next) => {
+  console.log(request.method);
+  console.log(request.path);
+  console.log(request.body);
+});
 
 let persons = [
   {
@@ -96,5 +96,5 @@ app.post("/api/persons", (request, response) => {
   response.status(404).end();
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
