@@ -5,9 +5,10 @@ import cors from "cors";
 
 const app = express();
 app.use(express.json());
+app.use(express.static('build'))
 app.use(cors());
 //app.use(morgan("tiny"));
-console.log(1)
+
 app.use((request, response, next) => {
   console.log(request.method);
   console.log(request.path);
