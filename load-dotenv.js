@@ -1,3 +1,2 @@
-import dotenv from 'dotenv';
-console.log(dotenv)
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();

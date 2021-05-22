@@ -32,9 +32,11 @@ app.get("/info", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
-  Person.find({}).then((persons) => {
-    response.json(persons);
-  });
+  Person.find({})
+    .then((persons) => {
+      response.json(persons);
+    })
+    .catch((error) => response.status(500).json(error));
 });
 
 app.get("/api/persons/:id", (request, response) => {
