@@ -6,8 +6,12 @@ content-type: application/json
 
 {
     "name": "",
-    "number":"0"
+    "number":null
 }
 
 ###
 GET http://localhost:3001/api/persons/
+
+
+###
+GET http://localhost:3001/api/persons/60a4838721a83c58a0b9196c
