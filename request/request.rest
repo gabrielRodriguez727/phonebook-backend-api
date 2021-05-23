@@ -10,8 +10,17 @@ content-type: application/json
 }
 
 ###
+PUT http://localhost:3001/api/persons/60a83f91d63cfa5768af4053 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "UPDATE",
+    "number":993939
+}
+
+###
 GET http://localhost:3001/api/persons/
 
 
 ###
-GET http://localhost:3001/api/persons/60a4838721a83c58a0b9196c
+GET http://localhost:3001/api/persons/60a4838721a83c58a0b9

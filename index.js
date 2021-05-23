@@ -1,4 +1,4 @@
-import "./load-dotenv.js";
+import "dotenv/config";
 import express from "express";
 //import morgan from "morgan";
 import cors from "cors";
@@ -11,9 +11,10 @@ app.use(cors());
 //app.use(morgan("tiny"));
 
 app.use((request, response, next) => {
-  console.log(request.method);
-  console.log(request.path);
-  console.log(request.body);
+  console.log("Method ", request.method);
+  console.log("Path ", request.path);
+  console.log("Params ", request.parms);
+  console.log("Body ", request.body);
   next();
 });
 
@@ -30,15 +31,15 @@ app.get("/info", (request, response) => {
   });
 });
 
-app.get("/api/persons", (request, response) => {
+app.get("/api/persons", (request, response, next) => {
   Person.find({})
     .then((persons) => {
       response.json(persons);
     })
-    .catch((error) => response.status(500).json(error));
+    .catch((error) => next(error));
 });
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
   Person.findById(id)
     .then((person) => {
@@ -47,7 +48,18 @@ app.get("/api/persons/:id", (request, response) => {
     .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (request, response) => {
+app.put("/api/persons/:id", (request, response, next) => {
+  const id = request.params.id;
+  console.log(personRequest);
+
+  Person.findByIdAndUpdate(id, personRequest, { new: true })
+    .then((result) => {
+      response.json(result);
+    })
+    .catch((error) => next(error));
+});
+
+app.delete("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
   Person.findByIdAndRemove(id)
     .then((result) => {
@@ -56,14 +68,13 @@ app.delete("/api/persons/:id", (request, response) => {
     .catch((error) => next(error));
 });
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const personRequest = request.body;
   let errorMsg = [];
   if (!personRequest.name) {
     errorMsg.push("El nombre no puede ser vacío");
   }
-  console.log(personRequest);
-  if (typeof personRequest.number === "undefined" || personRequest.number) {
+  if (typeof personRequest.number === "undefined" || !personRequest.number) {
     errorMsg.push("El número no puede ser vacío");
   }
   if (errorMsg.length) {
@@ -73,16 +84,27 @@ app.post("/api/persons", (request, response) => {
   }
   const person = new Person({ ...personRequest });
 
-  person.save().then((savedPerson) => {
-    response.status(201).json(savedPerson).end();
-  });
+  person
+    .save()
+    .then((savedPerson) => {
+      response.status(201).json(savedPerson).end();
+    })
+    .catch((error) => next(error));
 });
 
-const unknownEndpoint = (request, response) => {
+app.use((request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
-};
+});
 
-app.use(unknownEndpoint);
+app.use((error, request, response, next) => {
+  console.error(error);
+  console.log(error.name);
+  if (error.name === "CastError") {
+    response.status(400).send({ error: "ID is malformed" });
+  } else {
+    response.status(500).end();
+  }
+});
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
