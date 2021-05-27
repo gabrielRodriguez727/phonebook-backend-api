@@ -1,26 +1,44 @@
-DELETE  http://localhost:3001/api/persons/2 
+//DELETE PERSON
+DELETE  http://localhost:3001/api/persons/60aa99c0ab1e94f5c89f
 
+//CREATE PERSON 
 ###
 POST http://localhost:3001/api/persons/ HTTP/1.1
 content-type: application/json
 
 {
-    "name": "",
-    "number":null
+    "name": "Lolo",
+    "number":"333-444-5555"
 }
 
+//UPDATE PERSON
 ###
-PUT http://localhost:3001/api/persons/60a83f91d63cfa5768af4053 HTTP/1.1
+PUT http://localhost:3001/api/persons/60ab025d20e4030e08bebc2f HTTP/1.1
 content-type: application/json
 
 {
-    "name": "UPDATE",
-    "number":993939
+    "name": "Update s3",
+    "number":"111-222-3333"
 }
 
+//UPDATE PERSON
+###
+PATCH  http://localhost:3001/api/persons/60ab025d20e4030e08bebc2f HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Update 3x",
+    "number":"111-222-3333"
+}
+
+//GET ALL PERSONS
 ###
 GET http://localhost:3001/api/persons/
 
+//UNKNOW ENDPOINT
+###
+GET http://localhost:3001/break
 
+//ERROR HANDLER ON GET
 ###
 GET http://localhost:3001/api/persons/60a4838721a83c58a0b9

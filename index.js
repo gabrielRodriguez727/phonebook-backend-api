@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 //import morgan from "morgan";
 import cors from "cors";
+import errorHandler from "./middlewares/errorHandler.js";
+import uknowEndpoint from "./middlewares/uknowEndpoint.js";
 import Person from "./models/person.js";
 
 const app = express();
@@ -50,11 +52,16 @@ app.get("/api/persons/:id", (request, response, next) => {
 
 app.put("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
-  console.log(personRequest);
-
-  Person.findByIdAndUpdate(id, personRequest, { new: true })
+  const personRequest = request.body;
+  const opts = {
+    new: true,
+    runValidators: true,
+    context: "query",
+  };
+  Person.findByIdAndUpdate(id, personRequest, opts)
     .then((result) => {
-      response.json(result);
+      console.log(result)
+      response.status(200).json(result);
     })
     .catch((error) => next(error));
 });
@@ -62,7 +69,7 @@ app.put("/api/persons/:id", (request, response, next) => {
 app.delete("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
   Person.findByIdAndRemove(id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end();
     })
     .catch((error) => next(error));
@@ -70,41 +77,32 @@ app.delete("/api/persons/:id", (request, response, next) => {
 
 app.post("/api/persons", (request, response, next) => {
   const personRequest = request.body;
-  let errorMsg = [];
-  if (!personRequest.name) {
-    errorMsg.push("El nombre no puede ser vacío");
-  }
-  if (typeof personRequest.number === "undefined" || !personRequest.number) {
-    errorMsg.push("El número no puede ser vacío");
-  }
-  if (errorMsg.length) {
-    return response.status(400).json({
-      error: errorMsg.join("/n"),
-    });
-  }
+  // let errorMsg = [];
+  // if (!personRequest.name) {
+  //   errorMsg.push("El nombre no puede ser vacío");
+  // }
+  // if (typeof personRequest.number === "undefined" || !personRequest.number) {
+  //   errorMsg.push("El número no puede ser vacío");
+  // }
+  // if (errorMsg.length) {
+  //   return response.status(400).json({
+  //     error: errorMsg.join("/n"),
+  //   });
+  // }
   const person = new Person({ ...personRequest });
 
   person
     .save()
-    .then((savedPerson) => {
-      response.status(201).json(savedPerson).end();
-    })
+    .then((savedPerson) => savedPerson.toJSON())
+    .then((savedPersonFormatted) =>
+      response.status(201).json(savedPersonFormatted)
+    )
     .catch((error) => next(error));
 });
 
-app.use((request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
-});
+app.use(uknowEndpoint);
 
-app.use((error, request, response, next) => {
-  console.error(error);
-  console.log(error.name);
-  if (error.name === "CastError") {
-    response.status(400).send({ error: "ID is malformed" });
-  } else {
-    response.status(500).end();
-  }
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
